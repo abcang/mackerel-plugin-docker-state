@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ "$MACKEREL_AGENT_PLUGIN_META" = "1" ]; then
+   cat <<EOF
+# mackerel-agent-plugin
+{
+  "graphs": {
+    "docker.running.#": {
+      "label": "Running state",
+      "unit": "integer",
+      "metrics": [
+        {
+          "name": "state",
+          "label": "state"
+        }
+      ]
+    }
+  }
+}
+EOF
+   exit 0
+fi
+
+date=$(date +%s)
+
+error=$(docker version 2>&1 > /dev/null)
+if [ "$?" -ne "0" ]; then
+	export DOCKER_API_VERSION=$(echo $error | grep -E "server API version: [0-9.]+" -o | grep -E "[0-9.]+" -o)
+fi
+
+docker ps -a --format "{{.Names}},{{.Status}}" | while read line; do
+	name=$(echo $line | cut -f1 -d,)
+	if echo $line | cut -f2 -d, | grep "^Up" > /dev/null; then
+		status=1
+	else
+		status=0
+	fi
+	echo "docker.running.$name.state	$status	$date"
+done
