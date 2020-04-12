@@ -35,5 +35,5 @@ docker ps -a --format "{{.Names}},{{.Status}}" | while read line; do
     else
         status=0
     fi
-    echo "docker.running.$name.state\t$status\t$date"
+    echo -e "docker.running.$name.state\t$status\t$date"
 done
