@@ -6,7 +6,7 @@ if [ "$MACKEREL_AGENT_PLUGIN_META" = "1" ]; then
 {
   "graphs": {
     "docker.running.#": {
-      "label": "Running state",
+      "label": "Docker Running State",
       "unit": "integer",
       "metrics": [
         {
@@ -25,15 +25,15 @@ date=$(date +%s)
 
 error=$(docker version 2>&1 > /dev/null)
 if [ "$?" -ne "0" ]; then
-	export DOCKER_API_VERSION=$(echo $error | grep -E "server API version: [0-9.]+" -o | grep -E "[0-9.]+" -o)
+    export DOCKER_API_VERSION=$(echo $error | grep -E "server API version: [0-9.]+" -o | grep -E "[0-9.]+" -o)
 fi
 
 docker ps -a --format "{{.Names}},{{.Status}}" | while read line; do
-	name=$(echo $line | cut -f1 -d,)
-	if echo $line | cut -f2 -d, | grep "^Up" > /dev/null; then
-		status=1
-	else
-		status=0
-	fi
-	echo "docker.running.$name.state	$status	$date"
+    name=$(echo $line | cut -f1 -d,)
+    if echo $line | cut -f2 -d, | grep "^Up" > /dev/null; then
+        status=1
+    else
+        status=0
+    fi
+    echo "docker.running.$name.state\t$status\t$date"
 done
